@@ -20,6 +20,7 @@
 #	Johannes Bauer <JohannesBauer@gmx.de>
 
 from .BitString import BitString
+from .Exceptions import LZStringDecompressionException
 
 class LZStringDecompressor():
 	def __init__(self, bs: BitString):
@@ -46,7 +47,7 @@ class LZStringDecompressor():
 			case 1:
 				cdict[3] = self._bs.read_chars(2)
 			case _:
-				return result
+				return self._result
 
 		self._result = cdict[3]
 		last = cdict[3]
@@ -64,7 +65,7 @@ class LZStringDecompressor():
 			elif nextval == len(cdict):
 				entry = last + bytearray([ last[0] ])
 			else:
-				raise LZDecompressionException(f"nextval {nextval} is not in cdict: {cdict}")
+				raise LZStringDecompressionException(f"nextval {nextval} is not in cdict: {cdict}")
 
 			self._result += entry
 
