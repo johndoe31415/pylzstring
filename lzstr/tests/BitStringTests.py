@@ -23,11 +23,16 @@ import unittest
 from lzstr import BitString
 
 class BitStringTests(unittest.TestCase):
+	def test_bitstring_bitorder(self):
+		bs = BitString()
+		bs.append_value(12345, 17)
+		bs.append_value(54321, 19)
+		bs.seek(0)
+		self.assertEqual(bs.read_bits(17), 12345)
+		self.assertEqual(bs.read_bits(19), 54321)
+
 	def test_bitstring_bittext(self):
-		bs = BitString.from_bit_text("001000001000001000010000110000100100000000")
-		self.assertEqual(bs.get_bit(0), 0)
-		self.assertEqual(bs.get_bit(1), 0)
-		self.assertEqual(bs.get_bit(2), 1)
-		self.assertEqual(bs.get_bit(8), 1)
-		self.assertEqual(bs.get_bit(14), 1)
-		self.assertEqual(bs.get_bit(15), 0)
+		text = "001000001000001000010000110000100100000000"
+		bs = BitString.from_bit_text(text)
+		for (bitno, value) in enumerate(text):
+			self.assertEqual(bs.get_bit(bitno), int(value))

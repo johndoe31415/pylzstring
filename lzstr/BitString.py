@@ -55,9 +55,8 @@ class BitString():
 		assert(bit in [ 0, 1 ])
 		self.set_bit(self._bitlen, bit)
 
-	def append_value(self, value, bitcount, lsb_first = True):
-		rng = reversed(range(bitcount)) if lsb_first else range(bitcount)
-		for i in rng:
+	def append_value(self, value, bitcount):
+		for i in range(bitcount):
 			if (1 << i) & value:
 				self.append(1)
 			else:
@@ -66,7 +65,7 @@ class BitString():
 	def read_bits(self, count):
 		result = 0
 		for i in range(count):
-			result = (result << 1) | self.get_bit(self._pos + count - 1 - i)
+			result |= self.get_bit(self._pos + i) << i
 		self._pos += count
 		return result
 
