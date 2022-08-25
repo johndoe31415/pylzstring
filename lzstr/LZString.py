@@ -71,3 +71,60 @@ class LZStringDecompressor():
 			cdict[len(cdict)] = last + bytearray([ entry[0] ])
 			last = entry
 			self._enlarge_step()
+
+class LZStringCompressor():
+	def __init__(self, data: bytes):
+		self._data = data
+		self._numbits = 2
+		self._enlargein = 2
+		self._w = None
+		self._cdict = { }
+		self._created_dict_for = set()
+		self._result = None
+
+	def _produce_w(self):
+		if self._w not in self._created_dict_for:
+			self._created_dict_for.add(self._w)
+			if len(self._w) == 1:
+				self._result.append_value(0, self._numbits)
+				self._result.append_value(self._w[0], 8)
+			else:
+				self._result.append_value(1, self._numbits)
+				self._result.append_value(self._w[0], 8)
+				self._result.append_value(self._w[1], 8)
+			self._enlarge_step()
+		else:
+			self._result.append_value(self._cdict[self._w], self._numbits)
+		self._enlarge_step()
+
+	def _enlarge_step(self):
+		self._enlargein -= 1
+		if self._enlargein == 0:
+			self._enlargein = 1 << self._numbits
+			self._numbits += 1
+
+	def compress(self):
+		if self._result is not None:
+			return self._result
+
+		self._result = BitString()
+		self._w = b""
+		self._cdict = { }
+		for char in self._data:
+			char = bytes([ char ])
+			if char not in self._cdict:
+				self._cdict[char] = len(self._cdict)
+
+			wc = self._w + char
+			if wc in self._cdict:
+				self._w = wc
+			else:
+				self._produce_w()
+				self._cdict[wc] = len(self._cdict)
+				self._w = char
+
+		if self._w != b"":
+			self._produce_w()
+
+		self._result.append_value(2, self._numbits)
+		return self._result
