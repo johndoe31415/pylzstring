@@ -19,59 +19,49 @@
 #
 #	Johannes Bauer <JohannesBauer@gmx.de>
 
+import enum
 from .BitString import BitString
 from .Exceptions import LZStringDecompressionException
+
+class SpecialTokens(enum.IntEnum):
+	LiteralByte = 0
+	LiteralWord = 1
+	EndOfStream = 2
 
 class LZStringDecompressor():
 	def __init__(self, bs: BitString):
 		self._bs = bs
-		self._numbits = 3
-		self._enlargein = 4
-		self._bs.seek(0)
 		self._result = None
-
-	def _enlarge_step(self):
-		self._enlargein -= 1
-		if self._enlargein == 0:
-			self._enlargein = 1 << self._numbits
-			self._numbits += 1
 
 	def decompress(self):
 		if self._result is not None:
 			return self._result
 
-		cdict = { i: bytearray([ i ]) for i in range(3) }
-		match self._bs.read_bits(2):
-			case 0:
-				cdict[3] = self._bs.read_chars(1)
-			case 1:
-				cdict[3] = self._bs.read_chars(2)
-			case _:
-				return self._result
+		self._bs.seek(0)
+		cdict = { i: None for i in range(3) }
 
-		self._result = cdict[3]
-		last = cdict[3]
+		self._result = bytearray()
+		last_data = None
 		while True:
-			nextval = self._bs.read_bits(self._numbits)
-			if nextval in [ 0, 1 ]:
-				cdict[len(cdict)] = self._bs.read_chars(nextval + 1)
-				nextval = len(cdict) - 1
-				self._enlarge_step()
-			elif nextval == 2:
+			token_bits = len(cdict).bit_length()
+			token = self._bs.read_bits(token_bits)
+			if token in [ SpecialTokens.LiteralByte, SpecialTokens.LiteralWord ]:
+				data = bytes(self._bs.read_chars(token + 1))
+				cdict[len(cdict)] = data
+			elif token == SpecialTokens.EndOfStream:
 				return self._result
-
-			if nextval in cdict:
-				entry = cdict[nextval]
-			elif nextval == len(cdict):
-				entry = last + bytearray([ last[0] ])
 			else:
-				raise LZStringDecompressionException(f"nextval {nextval} is not in cdict: {cdict}")
+				if token in cdict:
+					data = cdict[token]
+				elif token == len(cdict):
+					data = last_data + bytearray([ last_data[0] ])
+				else:
+					raise LZStringDecompressionException(f"token {token} is not in compression dictionary: {cdict}")
 
-			self._result += entry
-
-			cdict[len(cdict)] = last + bytearray([ entry[0] ])
-			last = entry
-			self._enlarge_step()
+			self._result += data
+			if last_data is not None:
+				cdict[len(cdict)] = bytes(last_data + bytes([ data[0] ]))
+			last_data = data
 
 class LZStringCompressor():
 	def __init__(self, data: bytes):
