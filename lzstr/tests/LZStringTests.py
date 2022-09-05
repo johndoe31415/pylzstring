@@ -64,3 +64,13 @@ class LZStringTests(unittest.TestCase):
 		for test_vector in self._test_vectors:
 			bs = BitString.from_bytes(bytes(test_vector["uint8"]))
 			self.assertEqual(LZStringDecompressor(bs).decompress(), test_vector["uncompressed"])
+
+	def test_run_vectors_compression(self):
+		for test_vector in self._test_vectors:
+			reference_bs = BitString.from_bytes(bytes(test_vector["uint8"]))
+			compressed = LZStringCompressor(test_vector["uncompressed"]).compress()
+			if compressed.bit_len < reference_bs.bit_len:
+				# Pad with zeros
+				pad_bits = reference_bs.bit_len - compressed.bit_len
+				compressed.append_value(0, pad_bits)
+			self.assertEqual(reference_bs, compressed)

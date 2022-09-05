@@ -35,6 +35,10 @@ class BitString():
 		self._bitlen = 0
 		self._pos = 0
 
+	@property
+	def bit_len(self):
+		return self._bitlen
+
 	def seek(self, pos):
 		self._pos = pos
 
@@ -125,5 +129,8 @@ class BitString():
 	def to_bytes(self):
 		return bytes(self._bs)
 
-	def __str__(self):
+	def __eq__(self, other):
+		return (self._bitlen == other._bitlen) and (self._bs == other._bs)
+
+	def __repr__(self):
 		return f"BitString<{self._bitlen} bits: {self.to_text()}>"
