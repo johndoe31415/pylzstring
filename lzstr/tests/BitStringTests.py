@@ -23,7 +23,7 @@ import unittest
 from lzstr import BitString
 
 class BitStringTests(unittest.TestCase):
-	def test_bitstring_bitorder(self):
+	def test_bitstring_seek_retrieve(self):
 		bs = BitString()
 		bs.append_value(12345, 17)
 		bs.append_value(54321, 19)
@@ -31,8 +31,35 @@ class BitStringTests(unittest.TestCase):
 		self.assertEqual(bs.read_bits(17), 12345)
 		self.assertEqual(bs.read_bits(19), 54321)
 
-	def test_bitstring_bittext(self):
-		text = "001000001000001000010000110000100100000000"
-		bs = BitString.from_bit_text(text)
-		for (bitno, value) in enumerate(text):
-			self.assertEqual(bs.get_bit(bitno), int(value))
+	def test_base64_representation(self):
+		# "foobar"
+		bs = BitString.from_base64("GYexCMEMCcg=")
+		self.assertEqual(bs.to_bytes(), bytes([ 25, 135, 177, 8, 193, 12, 9, 200, 0 ]))
+
+		bs.seek(0)
+		self.assertEqual(bs.read_bits(2), 0)
+		self.assertEqual(bs.read_bits(8), ord("f"))
+		self.assertEqual(bs.read_bits(3), 0)
+		self.assertEqual(bs.read_bits(8), ord("o"))
+		self.assertEqual(bs.read_bits(3), 4)
+		self.assertEqual(bs.read_bits(3), 0)
+		self.assertEqual(bs.read_bits(8), ord("b"))
+		self.assertEqual(bs.read_bits(4), 0)
+		self.assertEqual(bs.read_bits(8), ord("a"))
+		self.assertEqual(bs.read_bits(4), 0)
+		self.assertEqual(bs.read_bits(8), ord("r"))
+		self.assertEqual(bs.read_bits(4), 2)
+
+	def test_uint8_bit_order(self):
+		# "ABCD"
+		bs = BitString.from_bytes(bytes.fromhex("208210c202240000"))
+		bs.seek(0)
+		self.assertEqual(bs.read_bits(2), 0)
+		self.assertEqual(bs.read_bits(8), ord("A"))
+		self.assertEqual(bs.read_bits(3), 0)
+		self.assertEqual(bs.read_bits(8), ord("B"))
+		self.assertEqual(bs.read_bits(3), 0)
+		self.assertEqual(bs.read_bits(8), ord("C"))
+		self.assertEqual(bs.read_bits(4), 0)
+		self.assertEqual(bs.read_bits(8), ord("D"))
+		self.assertEqual(bs.read_bits(4), 2)

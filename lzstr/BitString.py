@@ -19,9 +19,16 @@
 #
 #	Johannes Bauer <JohannesBauer@gmx.de>
 
+def _swap_bit_order(x, bitcount = 8):
+	y = 0
+	for i in range(bitcount):
+		if (x & (1 << i)) != 0:
+			y |= (1 << (bitcount - 1 - i))
+	return y
+
 class BitString():
-	_BASE64 = { char: index for (index, char) in enumerate("ABCDEFGHIJKLMNOPQRSTUVWXYZabcdefghijklmnopqrstuvwxyz0123456789+/") }
-	_URI_COMPONENT = { char: index for (index, char) in enumerate("ABCDEFGHIJKLMNOPQRSTUVWXYZabcdefghijklmnopqrstuvwxyz0123456789+-") }
+	_BASE64 = { char: _swap_bit_order(index, 6) for (index, char) in enumerate("ABCDEFGHIJKLMNOPQRSTUVWXYZabcdefghijklmnopqrstuvwxyz0123456789+/") }
+	_URI_COMPONENT = { char: _swap_bit_order(index, 6) for (index, char) in enumerate("ABCDEFGHIJKLMNOPQRSTUVWXYZabcdefghijklmnopqrstuvwxyz0123456789+-") }
 
 	def __init__(self):
 		self._bs = bytearray()
@@ -33,6 +40,7 @@ class BitString():
 
 	def _convpos(self, pos):
 		(bytepos, bitpos) = divmod(pos, 8)
+		bitpos = 7 - bitpos
 		return (bytepos, bitpos)
 
 	def set_bit(self, pos, value):
@@ -105,7 +113,7 @@ class BitString():
 		return bitstring
 
 	@classmethod
-	def from_data(cls, data):
+	def from_bytes(cls, data):
 		bitstring = BitString()
 		bitstring._bs = bytearray(data)
 		bitstring._bitlen = len(data) * 8
@@ -113,6 +121,9 @@ class BitString():
 
 	def to_text(self):
 		return "".join("1" if self.get_bit(i) else "0" for i in range(self._bitlen))
+
+	def to_bytes(self):
+		return bytes(self._bs)
 
 	def __str__(self):
 		return f"BitString<{self._bitlen} bits: {self.to_text()}>"
