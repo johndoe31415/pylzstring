@@ -74,3 +74,12 @@ class LZStringTests(unittest.TestCase):
 				pad_bits = reference_bs.bit_len - compressed.bit_len
 				compressed.append_value(0, pad_bits)
 			self.assertEqual(reference_bs, compressed)
+
+	def test_run_vectors_decompressible(self):
+		# Check that every word can be successfully decompressed, not
+		# necessarily outputs the same compressed stream
+		for test_vector in self._test_vectors:
+			uncompressed = test_vector["uncompressed"]
+			compressed = LZStringCompressor(uncompressed).compress()
+			decompressed = LZStringDecompressor(compressed).decompress()
+			self.assertEqual(decompressed, uncompressed)
