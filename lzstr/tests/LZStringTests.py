@@ -19,6 +19,7 @@
 #
 #	Johannes Bauer <JohannesBauer@gmx.de>
 
+import os
 import unittest
 import pkgutil
 import json
@@ -83,3 +84,24 @@ class LZStringTests(unittest.TestCase):
 			compressed = LZStringCompressor(uncompressed).compress()
 			decompressed = LZStringDecompressor(compressed).decompress()
 			self.assertEqual(decompressed, uncompressed)
+
+	def test_convenience_bytes(self):
+		random_data = os.urandom(1000)
+		compressed = LZStringCompressor.compress_to_bytes(random_data)
+		self.assertTrue(isinstance(compressed, bytes))
+		decompressed = LZStringDecompressor.decompress_from_bytes(compressed)
+		self.assertEqual(random_data, decompressed)
+
+	def test_convenience_base64(self):
+		random_data = os.urandom(1000)
+		compressed = LZStringCompressor.compress_to_base64(random_data)
+		self.assertTrue(isinstance(compressed, str))
+		decompressed = LZStringDecompressor.decompress_from_base64(compressed)
+		self.assertEqual(random_data, decompressed)
+
+	def test_convenience_url_component(self):
+		random_data = os.urandom(1000)
+		compressed = LZStringCompressor.compress_to_url_component(random_data)
+		self.assertTrue(isinstance(compressed, str))
+		decompressed = LZStringDecompressor.decompress_from_url_component(compressed)
+		self.assertEqual(random_data, decompressed)

@@ -34,7 +34,7 @@ class BitStringTests(unittest.TestCase):
 	def test_base64_representation(self):
 		# "foobar"
 		bs = BitString.from_base64("GYexCMEMCcg=")
-		self.assertEqual(bs.to_bytes(), bytes([ 25, 135, 177, 8, 193, 12, 9, 200, 0 ]))
+		self.assertEqual(bytes(bs), bytes([ 25, 135, 177, 8, 193, 12, 9, 200, 0 ]))
 
 		bs.seek(0)
 		self.assertEqual(bs.read_bits(2), 0)

@@ -63,6 +63,21 @@ class LZStringDecompressor():
 				cdict[len(cdict)] = bytes(last_data + bytes([ data[0] ]))
 			last_data = data
 
+	@classmethod
+	def decompress_from_bytes(cls, data: bytes):
+		bitstring = BitString.from_bytes(data)
+		return cls(bitstring).decompress()
+
+	@classmethod
+	def decompress_from_base64(cls, b64data: str):
+		bitstring = BitString.from_base64(b64data)
+		return cls(bitstring).decompress()
+
+	@classmethod
+	def decompress_from_url_component(cls, urlcomponent: str):
+		bitstring = BitString.from_url_component(urlcomponent)
+		return cls(bitstring).decompress()
+
 class LZStringCompressor():
 	def __init__(self, data: bytes):
 		self._data = data
@@ -76,7 +91,7 @@ class LZStringCompressor():
 		token_bits = (self._dictsize - 1).bit_length()
 		return token_bits
 
-	def _emit(self, pattern):
+	def _emit(self, pattern: bytes):
 		if pattern in self._not_emitted_yet:
 			self._not_emitted_yet.remove(pattern)
 			self._result.append_value(SpecialTokens.LiteralByte, self.token_bits)
@@ -115,3 +130,18 @@ class LZStringCompressor():
 		self._result.append_value(SpecialTokens.EndOfStream, self.token_bits)
 		self._cdict = None
 		return self._result
+
+	@classmethod
+	def compress_to_bytes(cls, data: bytes):
+		bitstring = cls(data).compress()
+		return bytes(bitstring)
+
+	@classmethod
+	def compress_to_base64(cls, data: bytes):
+		bitstring = cls(data).compress()
+		return bitstring.to_base64()
+
+	@classmethod
+	def compress_to_url_component(cls, data: bytes):
+		bitstring = cls(data).compress()
+		return bitstring.to_url_component()
