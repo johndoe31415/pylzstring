@@ -74,7 +74,9 @@ class LZStringDecompressor():
 		return cls(bitstring).decompress()
 
 	@classmethod
-	def decompress_from_url_component(cls, urlcomponent: str):
+	def decompress_from_url_component(cls, urlcomponent: str, escape = True):
+		if not escape:
+			urlcomponent = urlcomponent.replace(" ", "+")
 		bitstring = BitString.from_url_component(urlcomponent)
 		return cls(bitstring).decompress()
 
@@ -142,6 +144,9 @@ class LZStringCompressor():
 		return bitstring.to_base64()
 
 	@classmethod
-	def compress_to_url_component(cls, data: bytes):
+	def compress_to_url_component(cls, data: bytes, escape = True):
 		bitstring = cls(data).compress()
-		return bitstring.to_url_component()
+		result = bitstring.to_url_component()
+		if not escape:
+			result = result.replace("+", " ")
+		return result
