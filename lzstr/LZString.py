@@ -44,6 +44,9 @@ class LZStringDecompressor():
 		last_data = None
 		while True:
 			token_bits = len(cdict).bit_length()
+			if self._bs.remaining_bits < token_bits:
+				raise LZStringDecompressionException(f"Unexpected end of compressed stream: need {token_bits} bits but only {self._bs.remaining_bits} remain")
+
 			token = self._bs.read_bits(token_bits)
 			if token in [ SpecialTokens.LiteralByte, SpecialTokens.LiteralWord ]:
 				data = bytes(self._bs.read_chars(token + 1))
