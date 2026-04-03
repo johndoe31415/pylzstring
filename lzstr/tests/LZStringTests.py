@@ -24,6 +24,7 @@ import unittest
 import pkgutil
 import json
 from lzstr import BitString, LZStringDecompressor, LZStringCompressor
+from lzstr.Exceptions import LZStringDecompressionException
 
 class LZStringTests(unittest.TestCase):
 	def setUp(self):
@@ -105,3 +106,18 @@ class LZStringTests(unittest.TestCase):
 		self.assertTrue(isinstance(compressed, str))
 		decompressed = LZStringDecompressor.decompress_from_url_component(compressed)
 		self.assertEqual(random_data, decompressed)
+
+	def test_base64_fragment_via_url_component_raises_not_hangs(self):
+		# Regression test: decompress_from_url_component must raise LZStringDecompressionException
+		# (not hang) when given a base64-encoded fragment (which uses '/' not in the URI-safe
+		# alphabet).
+		# This specific fragment is known to contain '/'.
+		b64_fragment = "EQJgTgtgNAZABgDgOIgDYHkQCsDEBlCAdQF4AGYgCgE8AzASAA8BOJgbQE1iBqAJQFgAQgBUA/AC0AugDUAlABYIAZwDsAOwCGYYAEEg"
+		self.assertIn("/", b64_fragment)
+		with self.assertRaises(LZStringDecompressionException):
+			LZStringDecompressor.decompress_from_url_component(b64_fragment)
+
+		# The correct method must succeed and return non-empty data.
+		result = LZStringDecompressor.decompress_from_base64(b64_fragment)
+		self.assertIsInstance(result, bytearray)
+		self.assertGreater(len(result), 0)

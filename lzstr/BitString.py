@@ -79,6 +79,10 @@ class BitString():
 			else:
 				self.append(0)
 
+	@property
+	def remaining_bits(self) -> int:
+		return self._bitlen - self._pos
+
 	def read_bits(self, count):
 		result = 0
 		for i in range(count):
