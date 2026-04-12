@@ -23,4 +23,4 @@ from .BitString import BitString
 from .LZString import LZStringDecompressor, LZStringCompressor
 from .Exceptions import LZStringDecompressionException
 
-VERSION = "0.0.4"
+VERSION = "0.0.5rc0"
