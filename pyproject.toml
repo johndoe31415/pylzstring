@@ -21,3 +21,10 @@ Homepage = "https://github.com/johndoe31415/pylzstring"
 Repository = "https://github.com/johndoe31415/pylzstring.git"
 Issues = "https://github.com/johndoe31415/pylzstring/issues"
 Releases = "https://github.com/johndoe31415/pylzstring/tags"
+
+[tool.setuptools]
+package-dir = { "" = "src" }
+include-package-data = true
+
+[tool.setuptools.packages.find]
+where = [ "src" ]
