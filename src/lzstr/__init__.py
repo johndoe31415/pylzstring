@@ -1,5 +1,5 @@
 #	pylzstr - Native Python implementation of LZString string compression
-#	Copyright (C) 2022-2022 Johannes Bauer
+#	Copyright (C) 2022-2026 Johannes Bauer
 #
 #	This file is part of pylzstr.
 #
@@ -23,4 +23,4 @@ from .BitString import BitString
 from .LZString import LZStringDecompressor, LZStringCompressor
 from .Exceptions import LZStringDecompressionException
 
-VERSION = "0.0.4rc0"
+VERSION = "0.0.4"
