@@ -1,0 +1,24 @@
+name: tests
+
+on:
+  push:
+    branches: [ "main" ]
+  pull_request:
+    branches: [ "main" ]
+  workflow_dispatch:
+
+jobs:
+  tests:
+    runs-on: ubuntu-latest
+
+    steps:
+      - uses: actions/checkout@v3
+
+      - uses: actions/setup-python@v4
+        with:
+          python-version: "3.13"
+
+      - name: Install lzstr in venv and test to make sure it works as system package
+        run: |
+          pip3 install .
+          python3 -m unittest lzstr.tests
