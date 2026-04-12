@@ -1,0 +1,23 @@
+[build-system]
+requires = [ "setuptools>=77.0.3" ]
+build-backend = "setuptools.build_meta"
+
+[project]
+name = "lzstr"
+license = "GPL-3.0"
+version = "0.0.4rc0"
+description = "Native Python implementation of LZString string compression"
+readme = "README.md"
+requires-python = ">=3.10"
+authors = [ { name = "Johannes Bauer", email = "joe@johannes-bauer.com" } ]
+keywords = [ "python", "lzstring" ]
+classifiers = [
+	"Programming Language :: Python :: 3",
+]
+dependencies = [ ]
+
+[project.urls]
+Homepage = "https://github.com/johndoe31415/pylzstring"
+Repository = "https://github.com/johndoe31415/pylzstring.git"
+Issues = "https://github.com/johndoe31415/pylzstring/issues"
+Releases = "https://github.com/johndoe31415/pylzstring/tags"
